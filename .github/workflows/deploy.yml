@@ -1,3 +1,6 @@
+# 注意: 本プロジェクト（share-timer）は Node.js サーバーで動作し、GitHub Pages のような
+# 静的ホスティングでは動かないため、このワークフローは無効化しています。
+#
 # GitHub Pages デプロイワークフロー（テンプレート）
 #
 # main ブランチへのプッシュ時に自動デプロイします。
@@ -22,7 +25,7 @@ concurrency:
 
 jobs:
   deploy:
-    if: hashFiles('package.json') != ''
+    if: ${{ false }} # 静的ホスティング非対応のため無効化
     runs-on: ubuntu-latest
     steps:
       - name: Checkout

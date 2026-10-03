@@ -1,0 +1,17 @@
+{
+  "name": "share-timer",
+  "version": "1.0.0",
+  "description": "アクセスした全員に同期されたカウントダウンタイマーを表示する Web アプリ",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js",
+    "lint": "node scripts/check-syntax.js",
+    "test": "node --test"
+  }
+}

@@ -1,3 +1,6 @@
+# 注意: 本プロジェクト（share-timer）は Node.js サーバーで動作し、GitHub Pages のような
+# 静的ホスティングでは動かないため、このワークフローは無効化しています。
+#
 # PR プレビューワークフロー（テンプレート）
 #
 # PR ごとに gh-pages ブランチへプレビュー環境をデプロイし、
@@ -27,7 +30,7 @@ concurrency:
 jobs:
   deploy-preview:
     # package.json が存在する npm プロジェクトのみ実行
-    if: github.event.action != 'closed' && hashFiles('package.json') != ''
+    if: ${{ false }} # 静的ホスティング非対応のため無効化
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -103,7 +106,7 @@ jobs:
             }
 
   cleanup-preview:
-    if: github.event.action == 'closed' && hashFiles('package.json') != ''
+    if: ${{ false }} # 静的ホスティング非対応のため無効化
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
