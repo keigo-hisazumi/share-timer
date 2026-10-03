@@ -56,5 +56,5 @@ test-results/
 .vercel
 .wrangler
 
-# アプリの永続化データ
-data/
+# Firebase のローカル設定（scripts/build.js が読み込む）
+firebase-config.json

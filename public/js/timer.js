@@ -1,6 +1,6 @@
-// タイマーの状態遷移を扱う純粋関数群
+// タイマーの状態遷移を扱う純粋関数群（ブラウザとテストの両方から読み込む）
 //
-// 状態は「終了予定時刻（サーバー時刻のエポックミリ秒）」を保持する方式にしている。
+// 状態は「終了予定時刻（Firebase サーバー時刻のエポックミリ秒）」を保持する方式にしている。
 // これによりクライアントは毎秒の通知を受け取らなくても、
 // サーバーとの時刻差だけ補正すれば全員が同じ残り時間を表示できる。
 
@@ -142,4 +142,16 @@ export function isValidState(value) {
   if (!Number.isInteger(version) || version < 0) return false;
   if (status === 'running') return Number.isFinite(endsAt);
   return endsAt === null;
+}
+
+/**
+ * データベースから読み込んだ値を状態に変換する
+ *
+ * Firebase は null のフィールドを保存しないため endsAt を補い、
+ * 値が未作成・不正な場合は初期状態を返す
+ */
+export function parseState(value) {
+  if (!value || typeof value !== 'object') return createInitialState();
+  const state = { ...value, endsAt: value.endsAt ?? null };
+  return isValidState(state) ? state : createInitialState();
 }

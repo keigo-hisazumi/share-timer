@@ -8,7 +8,8 @@ import {
   getRemainingMs,
   isValidState,
   normalize,
-} from '../src/timer.js';
+  parseState,
+} from '../public/js/timer.js';
 
 describe('applyAction', () => {
   it('set で時間を設定すると待機状態になる', () => {
@@ -89,5 +90,18 @@ describe('isValidState', () => {
     assert.equal(isValidState(null), false);
     assert.equal(isValidState({ ...state, status: 'unknown' }), false);
     assert.equal(isValidState({ ...state, status: 'running', endsAt: null }), false);
+  });
+});
+
+describe('parseState', () => {
+  it('データベースの値を状態に変換する', () => {
+    // Firebase は null を保存しないため endsAt が欠けた値になる
+    const stored = { status: 'paused', durationMs: 60_000, remainingMs: 30_000, version: 3 };
+    assert.deepEqual(parseState(stored), { ...stored, endsAt: null });
+  });
+
+  it('未作成・不正な値は初期状態にする', () => {
+    assert.deepEqual(parseState(null), createInitialState());
+    assert.deepEqual(parseState({ status: 'running', durationMs: 60_000, remainingMs: 1, version: 0 }), createInitialState());
   });
 });

@@ -1,0 +1,44 @@
+# GitHub Pages デプロイワークフロー
+#
+# main ブランチへのプッシュ時に dist/ をビルドし、gh-pages ブランチのルートへ公開します。
+# PR プレビュー（pr-* ディレクトリ）は残したまま本番部分だけを入れ替えます。
+#
+# 事前準備（README の「GitHub Pages での公開」を参照）:
+#   - リポジトリ変数 FIREBASE_CONFIG に Firebase のウェブアプリ設定（JSON）を登録
+#   - Settings → Pages で「Deploy from a branch」→ gh-pages / (root) を選択
+
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+      - name: Node.js のセットアップ
+        uses: actions/setup-node@v5
+        with:
+          node-version: '22'
+          cache: 'npm'
+      - name: 依存関係のインストール
+        run: npm ci
+      - name: ビルド
+        run: npm run build
+        env:
+          FIREBASE_CONFIG: ${{ vars.FIREBASE_CONFIG }}
+          TIMER_PATH: timer
+      - name: gh-pages ブランチへのデプロイ
+        run: scripts/gh-pages.sh deploy dist .

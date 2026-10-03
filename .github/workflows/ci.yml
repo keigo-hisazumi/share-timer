@@ -1,7 +1,7 @@
 # CI ワークフロー
 #
 # Node.js / npm プロジェクト向けの標準 CI パイプラインです。
-# 本プロジェクトは外部依存なし・ビルド不要のため、Lint（構文チェック）とテストのみ実行します。
+# 本プロジェクトは外部依存なしの静的サイトのため、Lint（構文チェック）・テスト・ビルドのみ実行します。
 # 言語やパッケージマネージャーが異なる場合は、各ステップを差し替えてください:
 #   - Python: actions/setup-python + pip/poetry/uv
 #   - Go: actions/setup-go
@@ -53,3 +53,5 @@ jobs:
         run: npm ci
       - name: テスト
         run: npm test
+      - name: ビルド
+        run: npm run build

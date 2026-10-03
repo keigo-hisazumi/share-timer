@@ -4,7 +4,7 @@ import { spawnSync } from 'node:child_process';
 import { readdirSync } from 'node:fs';
 import path from 'node:path';
 
-const TARGET_DIRS = ['src', 'public', 'scripts', 'test'];
+const TARGET_DIRS = ['public', 'scripts', 'test'];
 
 function collect(dir) {
   return readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
