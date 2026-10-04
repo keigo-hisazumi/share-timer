@@ -1,0 +1,66 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "admins": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": false
+      }
+    },
+    "timer": {
+      ".read": true,
+      ".write": "auth != null && root.child('admins').child(auth.uid).val() === true",
+      ".validate": "newData.hasChildren(['status', 'durationMs', 'remainingMs', 'version'])",
+      "status": {
+        ".validate": "newData.isString() && newData.val().matches(/^(idle|running|paused|finished)$/)"
+      },
+      "durationMs": {
+        ".validate": "newData.isNumber() && newData.val() >= 1000 && newData.val() <= 359999000"
+      },
+      "remainingMs": {
+        ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 359999000"
+      },
+      "endsAt": {
+        ".validate": "newData.isNumber() && newData.parent().child('status').val() === 'running'"
+      },
+      "version": {
+        ".validate": "newData.isNumber() && newData.val() >= 0"
+      },
+      "$other": {
+        ".validate": false
+      }
+    },
+    "previews": {
+      "$preview": {
+        ".validate": "$preview.matches(/^pr-[0-9]+$/)",
+        "timer": {
+          ".read": true,
+          ".write": "auth != null && root.child('admins').child(auth.uid).val() === true",
+          ".validate": "newData.hasChildren(['status', 'durationMs', 'remainingMs', 'version'])",
+          "status": {
+            ".validate": "newData.isString() && newData.val().matches(/^(idle|running|paused|finished)$/)"
+          },
+          "durationMs": {
+            ".validate": "newData.isNumber() && newData.val() >= 1000 && newData.val() <= 359999000"
+          },
+          "remainingMs": {
+            ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 359999000"
+          },
+          "endsAt": {
+            ".validate": "newData.isNumber() && newData.parent().child('status').val() === 'running'"
+          },
+          "version": {
+            ".validate": "newData.isNumber() && newData.val() >= 0"
+          },
+          "$other": {
+            ".validate": false
+          }
+        },
+        "$other": {
+          ".validate": false
+        }
+      }
+    }
+  }
+}

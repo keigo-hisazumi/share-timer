@@ -55,3 +55,6 @@ test-results/
 # ツール
 .vercel
 .wrangler
+
+# Firebase のローカル設定（scripts/build.js が読み込む）
+firebase-config.json

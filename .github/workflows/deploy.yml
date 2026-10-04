@@ -1,9 +1,11 @@
-# GitHub Pages デプロイワークフロー（テンプレート）
+# GitHub Pages デプロイワークフロー
 #
-# main ブランチへのプッシュ時に自動デプロイします。
-# 実プロジェクトに合わせて以下を確認してください:
-#   - ビルドコマンド（npm run build など）
-#   - publish_dir（ビルド出力ディレクトリ）
+# main ブランチへのプッシュ時に dist/ をビルドし、gh-pages ブランチのルートへ公開します。
+# PR プレビュー（pr-* ディレクトリ）は残したまま本番部分だけを入れ替えます。
+#
+# 事前準備（README の「GitHub Pages での公開」を参照）:
+#   - リポジトリ変数 FIREBASE_CONFIG に Firebase のウェブアプリ設定（JSON）を登録
+#   - Settings → Pages で「Deploy from a branch」→ gh-pages / (root) を選択
 
 name: Deploy to GitHub Pages
 
@@ -22,13 +24,12 @@ concurrency:
 
 jobs:
   deploy:
-    if: hashFiles('package.json') != ''
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Node.js のセットアップ
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: '22'
           cache: 'npm'
@@ -37,12 +38,7 @@ jobs:
       - name: ビルド
         run: npm run build
         env:
-          NODE_ENV: production
-      - name: GitHub Pages へのデプロイ
-        uses: peaceiris/actions-gh-pages@v4
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          # TODO: ビルド出力ディレクトリを確認してください（例: ./dist, ./build, ./out）
-          publish_dir: ./dist
-          keep_files: true
-          exclude_assets: 'pr-*'
+          FIREBASE_CONFIG: ${{ vars.FIREBASE_CONFIG }}
+          TIMER_PATH: timer
+      - name: gh-pages ブランチへのデプロイ
+        run: scripts/gh-pages.sh deploy dist .

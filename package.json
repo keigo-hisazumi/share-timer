@@ -1,0 +1,17 @@
+{
+  "name": "share-timer",
+  "version": "1.0.0",
+  "description": "アクセスした全員に同期されたカウントダウンタイマーを表示する Web アプリ（GitHub Pages + Firebase）",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "node scripts/build.js",
+    "dev": "node scripts/build.js && node scripts/serve.js",
+    "lint": "node scripts/check-syntax.js && node -e \"JSON.parse(require('fs').readFileSync('database.rules.json','utf8'))\"",
+    "test": "node --test"
+  }
+}

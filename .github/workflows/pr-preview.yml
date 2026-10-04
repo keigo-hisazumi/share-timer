@@ -1,13 +1,12 @@
-# PR プレビューワークフロー（テンプレート）
+# PR プレビューワークフロー
 #
-# PR ごとに gh-pages ブランチへプレビュー環境をデプロイし、
+# PR ごとに gh-pages ブランチの pr-<番号>/ へプレビュー環境をデプロイし、
 # PR コメントにプレビュー URL と QR コードを自動投稿します。
 # PR クローズ時はプレビューディレクトリを自動削除します。
 #
-# 実プロジェクトに合わせて以下を確認してください:
-#   - ベースパスの環境変数名（VITE_BASE_PATH など）
-#   - ビルドコマンド（npm run build など）
-#   - publish_dir（ビルド出力ディレクトリ）
+# プレビューは Firebase 上で本番とは別のパス（previews/pr-<番号>/timer）を使うため、
+# プレビューでタイマーを操作しても本番のタイマーには影響しません。
+# フォークからの PR は書き込み権限がないため対象外です。
 
 name: PR Preview
 
@@ -26,15 +25,14 @@ concurrency:
 
 jobs:
   deploy-preview:
-    # package.json が存在する npm プロジェクトのみ実行
-    if: github.event.action != 'closed' && hashFiles('package.json') != ''
+    if: github.event.action != 'closed' && github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Node.js のセットアップ
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: '22'
           cache: 'npm'
@@ -42,28 +40,24 @@ jobs:
       - name: 依存関係のインストール
         run: npm ci
 
-      # TODO: フレームワークに合わせてベースパスの変数名を変更してください
-      - name: PR ブランチ用ベースパスでビルド
-        env:
-          VITE_BASE_PATH: /${{ github.event.repository.name }}/pr-${{ github.event.number }}/
+      - name: PR プレビュー用にビルド
         run: npm run build
+        env:
+          FIREBASE_CONFIG: ${{ vars.FIREBASE_CONFIG }}
+          TIMER_PATH: previews/pr-${{ github.event.number }}/timer
 
       - name: gh-pages への PR プレビューのデプロイ
-        uses: peaceiris/actions-gh-pages@v4
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./dist
-          destination_dir: pr-${{ github.event.number }}
-          keep_files: true
+        run: scripts/gh-pages.sh deploy dist "pr-${{ github.event.number }}"
 
       - name: プレビュー URL のコメント投稿
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             const prNumber = context.issue.number;
             const owner = context.repo.owner;
             const repo = context.repo.repo;
             const previewUrl = `https://${owner}.github.io/${repo}/pr-${prNumber}/`;
+            const adminUrl = `${previewUrl}admin/`;
             const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(previewUrl)}`;
             const marker = '<!-- pr-preview -->';
             const body = [
@@ -72,62 +66,43 @@ jobs:
               '',
               `| | |`,
               `|---|---|`,
-              `| **プレビューURL** | [${previewUrl}](${previewUrl}) |`,
-              `| **コミット** | \`${context.sha.slice(0, 7)}\` |`,
+              `| **タイマー画面** | [${previewUrl}](${previewUrl}) |`,
+              `| **管理画面** | [${adminUrl}](${adminUrl}) |`,
+              `| **コミット** | \`${context.payload.pull_request.head.sha.slice(0, 7)}\` |`,
               `| **QRコード** | ![](${qrUrl}) |`,
               '',
-              '*コードをプッシュするたびに自動更新されます。*',
+              '*コードをプッシュするたびに自動更新されます。プレビューのタイマーは本番とは独立しています。*',
             ].join('\n');
 
-            const { data: comments } = await github.rest.issues.listComments({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
+            const comments = await github.paginate(github.rest.issues.listComments, {
+              owner,
+              repo,
               issue_number: prNumber,
             });
 
-            const existing = comments.find(c => c.body.includes(marker));
+            const existing = comments.find(c => c.body?.includes(marker));
             if (existing) {
               await github.rest.issues.updateComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
+                owner,
+                repo,
                 comment_id: existing.id,
                 body,
               });
             } else {
               await github.rest.issues.createComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
+                owner,
+                repo,
                 issue_number: prNumber,
                 body,
               });
             }
 
   cleanup-preview:
-    if: github.event.action == 'closed' && hashFiles('package.json') != ''
+    if: github.event.action == 'closed' && github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+        uses: actions/checkout@v5
 
       - name: gh-pages からプレビューディレクトリを削除
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-
-          if ! git ls-remote --exit-code origin gh-pages; then
-            echo "gh-pages ブランチが存在しないため、クリーンアップをスキップします"
-            exit 0
-          fi
-
-          git fetch origin gh-pages
-          git checkout gh-pages
-
-          if [ -d "pr-${{ github.event.number }}" ]; then
-            git rm -rf "pr-${{ github.event.number }}"
-            git commit -m "chore: PR #${{ github.event.number }} のプレビューを削除"
-            git push origin gh-pages
-          else
-            echo "プレビューディレクトリ pr-${{ github.event.number }} が見つかりません、スキップします"
-          fi
+        run: scripts/gh-pages.sh remove "pr-${{ github.event.number }}"
