@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Share Timer</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="viewer">
+  <main class="viewer-main" title="クリックで全画面表示">
+    <div id="timer" class="timer" data-status="loading" aria-live="off">--:--</div>
+  </main>
+  <p id="notice" class="notice" hidden></p>
+  <div id="connection" class="connection" hidden>再接続中…</div>
+  <script type="module" src="js/viewer.js"></script>
+</body>
+</html>
