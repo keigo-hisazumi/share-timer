@@ -52,7 +52,11 @@ writeFileSync(
   path.join(distDir, 'js', 'config.js'),
   `// scripts/build.js により自動生成\nexport default ${JSON.stringify({ firebase, timerPath }, null, 2)};\n`,
 );
+// Service Worker のキャッシュ名にビルド ID を埋め込み、デプロイごとに更新されるようにする
+const buildId = (process.env.GITHUB_SHA?.slice(0, 12) || 'local') + '-' + Date.now().toString(36);
+const swFile = path.join(distDir, 'sw.js');
+writeFileSync(swFile, readFileSync(swFile, 'utf8').replace("const BUILD_ID = 'dev';", `const BUILD_ID = '${buildId}';`));
 // GitHub Pages で Jekyll の処理を無効化する
 writeFileSync(path.join(distDir, '.nojekyll'), '');
 
-console.log(`dist/ を生成しました（timerPath: ${timerPath}）`);
+console.log(`dist/ を生成しました（timerPath: ${timerPath}, buildId: ${buildId}）`);
