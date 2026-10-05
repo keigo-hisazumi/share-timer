@@ -4,7 +4,7 @@
 # PR プレビュー（pr-* ディレクトリ）は残したまま本番部分だけを入れ替えます。
 #
 # 事前準備（README の「GitHub Pages での公開」を参照）:
-#   - リポジトリ変数 FIREBASE_CONFIG に Firebase のウェブアプリ設定（JSON）を登録
+#   - リポジトリ変数 FIREBASE_CONFIG に Firebase のウェブアプリ設定（JSON またはコンソールの JS スニペット）を登録
 #   - Settings → Pages で「Deploy from a branch」→ gh-pages / (root) を選択
 
 name: Deploy to GitHub Pages
