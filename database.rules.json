@@ -8,6 +8,13 @@
         ".write": false
       }
     },
+    "clockSync": {
+      "$sample": {
+        ".read": true,
+        ".write": "!data.exists() || !newData.exists()",
+        ".validate": "$sample.matches(/^[-_0-9A-Za-z]{20}$/) && newData.isNumber() && newData.val() <= now && newData.val() >= now - 1000"
+      }
+    },
     "timer": {
       ".read": true,
       ".write": "auth != null && root.child('admins').child(auth.uid).val() === true",

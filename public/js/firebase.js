@@ -7,8 +7,12 @@ import {
   get,
   getDatabase,
   onValue,
+  push,
   ref,
+  remove,
   runTransaction,
+  serverTimestamp,
+  set,
 } from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-database.js';
 
 import config from './config.js';
@@ -22,4 +26,4 @@ export const timerPath = config.timerPath;
 export const app = isConfigured ? initializeApp(config.firebase) : null;
 export const db = app ? getDatabase(app) : null;
 
-export { get, onValue, ref, runTransaction };
+export { get, onValue, push, ref, remove, runTransaction, serverTimestamp, set };

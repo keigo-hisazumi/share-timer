@@ -1,8 +1,35 @@
 // Firebase Realtime Database との状態同期・時刻同期を行うモジュール
 
-import { db, onValue, ref, timerPath } from './firebase.js';
+import { pickBestOffset } from './clock.js';
+import { db, get, onValue, push, ref, remove, serverTimestamp, set, timerPath } from './firebase.js';
 import { remainingAt } from './format.js';
 import { parseState } from './timer.js';
+
+/** 時刻差の計測で書き込むデータベース上のパス（計測後すぐに削除する） */
+const CLOCK_SYNC_PATH = 'clockSync';
+
+/** 1 回の時刻合わせで行う計測の回数（往復時間が最短のものを採用する） */
+const CLOCK_SAMPLE_COUNT = 5;
+
+/** 端末の時計の進み・遅れに追従するため、定期的に時刻合わせをやり直す間隔 */
+const CLOCK_RESYNC_INTERVAL_MS = 10 * 60 * 1000;
+
+/**
+ * サーバー時刻を書き込んで読み戻し、送信・応答時刻とあわせた計測結果を返す
+ */
+async function measureClock() {
+  const sampleRef = push(ref(db, CLOCK_SYNC_PATH));
+  const sentAt = Date.now();
+  await set(sampleRef, serverTimestamp());
+  const receivedAt = Date.now();
+  try {
+    // get() は購読していないパスならサーバーから取得するため、サーバーが記録した実際の値が得られる
+    const serverTime = (await get(sampleRef)).val();
+    return { sentAt, receivedAt, serverTime };
+  } finally {
+    remove(sampleRef).catch(() => {});
+  }
+}
 
 /**
  * タイマーの状態をデータベースと同期する
@@ -13,16 +40,45 @@ import { parseState } from './timer.js';
  * @param {(error: Error) => void} [handlers.onError] 読み込みに失敗したとき
  */
 export function connectTimer({ onState = () => {}, onConnection = () => {}, onError = () => {} } = {}) {
-  // Firebase が計測した「サーバー時刻 - 端末時刻」の差。端末の時計がずれていても補正できる
-  let offset = 0;
+  // 「サーバー時刻 - 端末時刻」の差。端末の時計がずれていても補正できる
+  // Firebase の推定値（sdkOffset）は数秒ずれることがあるため、自前の計測値（measuredOffset）があればそちらを使う
+  let sdkOffset = 0;
+  let measuredOffset = null;
   let state = null;
 
+  let syncing = false;
+  let warned = false;
+  async function syncClock() {
+    if (syncing) return;
+    syncing = true;
+    const samples = [];
+    try {
+      for (let i = 0; i < CLOCK_SAMPLE_COUNT; i++) {
+        samples.push(await measureClock());
+      }
+    } catch (err) {
+      // ルール未反映などで計測できない場合は Firebase の推定値で動作を続ける
+      if (!warned) {
+        console.warn('サーバー時刻の計測に失敗しました。Firebase の推定値で補正します', err);
+        warned = true;
+      }
+    } finally {
+      syncing = false;
+    }
+    const best = pickBestOffset(samples);
+    if (best) measuredOffset = best.offset;
+  }
+
   onValue(ref(db, '.info/serverTimeOffset'), (snapshot) => {
-    offset = snapshot.val() ?? 0;
+    sdkOffset = snapshot.val() ?? 0;
   });
   onValue(ref(db, '.info/connected'), (snapshot) => {
-    onConnection(snapshot.val() === true);
+    const connected = snapshot.val() === true;
+    // 接続（再接続）のたびに時刻を合わせ直す
+    if (connected) syncClock();
+    onConnection(connected);
   });
+  setInterval(syncClock, CLOCK_RESYNC_INTERVAL_MS);
   onValue(
     ref(db, timerPath),
     (snapshot) => {
@@ -32,7 +88,7 @@ export function connectTimer({ onState = () => {}, onConnection = () => {}, onEr
     onError,
   );
 
-  const serverNow = () => Date.now() + offset;
+  const serverNow = () => Date.now() + (measuredOffset ?? sdkOffset);
 
   return {
     /** 最新の状態（未受信なら null） */
