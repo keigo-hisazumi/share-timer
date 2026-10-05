@@ -2,7 +2,6 @@
 #
 # 言語が確定したら `language` に対象（`javascript-typescript`, `python`, `go`,
 # `java-kotlin`, `csharp`, `ruby`, `swift`, `cpp` など）を追加してください。
-# JS/TS ソースファイルが存在する場合のみ実行されます。
 
 name: CodeQL
 
@@ -23,7 +22,6 @@ jobs:
   analyze:
     name: Analyze (${{ matrix.language }})
     runs-on: ubuntu-latest
-    if: hashFiles('**/*.ts', '**/*.tsx', '**/*.js', '**/*.jsx') != ''
     strategy:
       fail-fast: false
       matrix:

@@ -1,12 +1,15 @@
 // public/ を dist/ にコピーし、実行時設定（js/config.js）を生成する
 //
 // 環境変数:
-//   FIREBASE_CONFIG  Firebase のウェブアプリ設定（JSON）。未指定ならリポジトリ直下の firebase-config.json を読む
+//   FIREBASE_CONFIG  Firebase のウェブアプリ設定（JSON。Firebase コンソールの JavaScript スニペット形式も可）。
+//                    未指定ならリポジトリ直下の firebase-config.json を読む
 //   TIMER_PATH       タイマーの状態を保存するデータベース上のパス（既定値: timer）
 
 import { cpSync, existsSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+
+import { parseFirebaseConfig } from './firebase-config.js';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
 const publicDir = path.join(root, 'public');
@@ -15,8 +18,6 @@ const localConfigFile = path.join(root, 'firebase-config.json');
 
 /** 許可するデータベースパス（本番 or PR プレビュー） */
 const TIMER_PATH_PATTERN = /^(timer|previews\/pr-[0-9]+\/timer)$/;
-/** Realtime Database を使うために必須の設定項目 */
-const REQUIRED_KEYS = ['apiKey', 'authDomain', 'databaseURL', 'projectId', 'appId'];
 
 function loadFirebaseConfig() {
   let source = null;
@@ -30,16 +31,7 @@ function loadFirebaseConfig() {
     return null;
   }
 
-  let config;
-  try {
-    config = JSON.parse(text);
-  } catch {
-    throw new Error(`${source} が JSON として読み込めません`);
-  }
-  const missing = REQUIRED_KEYS.filter((key) => typeof config[key] !== 'string' || !config[key]);
-  if (missing.length > 0) {
-    throw new Error(`${source} に必須の項目がありません: ${missing.join(', ')}`);
-  }
+  const config = parseFirebaseConfig(text, source);
   console.log(`Firebase の設定を ${source} から読み込みました`);
   return config;
 }

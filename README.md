@@ -52,7 +52,7 @@ GitHub Pages で配信する静的サイトで、タイマーの同期と管理�
 
 ## GitHub Pages での公開
 
-1. GitHub の **Settings → Secrets and variables → Actions → Variables** で、リポジトリ変数 `FIREBASE_CONFIG` に上記の JSON を登録する
+1. GitHub の **Settings → Secrets and variables → Actions → Variables** で、リポジトリ変数 `FIREBASE_CONFIG` に上記の JSON を登録する（Firebase コンソールに表示される `const firebaseConfig = { ... };` 形式をそのまま貼り付けても構いません）
 2. `main` へのマージ（または Actions の **Deploy to GitHub Pages** を手動実行）で `gh-pages` ブランチに公開される
 3. **Settings → Pages** で **Source** を「Deploy from a branch」、ブランチを `gh-pages` / `/ (root)` にする（初回のみ）
 
