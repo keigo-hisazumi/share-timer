@@ -7,6 +7,22 @@
 /** Realtime Database を使うために必須の設定項目 */
 export const REQUIRED_KEYS = ['apiKey', 'authDomain', 'databaseURL', 'projectId', 'appId'];
 
+/** 1 文字のエスケープシーケンスと対応する文字 */
+const SIMPLE_ESCAPES = { n: '\n', t: '\t', r: '\r', b: '\b', f: '\f', v: '\v', 0: '\0' };
+
+/**
+ * JavaScript の文字列リテラルの中身（クォートを除いた部分）のエスケープを解釈する
+ * @param {string} body
+ * @returns {string}
+ */
+function unescapeJsString(body) {
+  return body.replace(/\\(?:u([0-9a-fA-F]{4})|x([0-9a-fA-F]{2})|([\s\S]))/g, (_, unicode, hex, char) => {
+    if (unicode) return String.fromCharCode(parseInt(unicode, 16));
+    if (hex) return String.fromCharCode(parseInt(hex, 16));
+    return SIMPLE_ESCAPES[char] ?? char;
+  });
+}
+
 /**
  * JavaScript のオブジェクトリテラルを JSON 文字列に変換する
  * 文字列リテラルの中身（URL の // など）は書き換えない
@@ -25,9 +41,8 @@ function objectLiteralToJson(text) {
   for (const [token] of source.matchAll(tokenPattern)) {
     if (token.startsWith('//') || token.startsWith('/*')) continue;
     if (token.startsWith("'")) {
-      // シングルクォート文字列をダブルクォートに変換する
-      const inner = token.slice(1, -1).replace(/\\'/g, "'").replace(/"/g, '\\"');
-      out += `"${inner}"`;
+      // シングルクォート文字列のエスケープを解釈し、JSON の文字列として出力し直す
+      out += JSON.stringify(unescapeJsString(token.slice(1, -1)));
     } else if (/^[A-Za-z_$]/.test(token) && !['true', 'false', 'null'].includes(token)) {
       // クォートのないキーをクォートする
       out += `"${token}"`;

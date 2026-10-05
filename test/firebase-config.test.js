@@ -46,6 +46,19 @@ const firebaseConfig = {
     assert.deepEqual(parseFirebaseConfig(snippet, 'test'), expected);
   });
 
+  it('シングルクォート文字列のエスケープを正しく解釈する', () => {
+    const snippet = `{
+  apiKey: 'a\\\\b\\'c"d\\n',
+  authDomain: 'example.firebaseapp.com',
+  databaseURL: 'https://example-default-rtdb.firebaseio.com',
+  projectId: 'example',
+  appId: '\\u0061pp',
+}`;
+    const config = parseFirebaseConfig(snippet, 'test');
+    assert.equal(config.apiKey, 'a\\b\'c"d\n');
+    assert.equal(config.appId, 'app');
+  });
+
   it('解釈できない文字列はエラーにする', () => {
     assert.throws(() => parseFirebaseConfig('not a config', 'test'), /読み込めません/);
     assert.throws(() => parseFirebaseConfig('[1, 2]', 'test'), /オブジェクト形式/);
