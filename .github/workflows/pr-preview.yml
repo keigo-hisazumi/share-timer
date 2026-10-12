@@ -50,7 +50,7 @@ jobs:
         run: scripts/gh-pages.sh deploy dist "pr-${{ github.event.number }}"
 
       - name: プレビュー URL のコメント投稿
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           script: |
             const prNumber = context.issue.number;
