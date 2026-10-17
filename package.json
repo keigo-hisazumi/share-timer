@@ -11,7 +11,12 @@
   "scripts": {
     "build": "node scripts/build.js",
     "dev": "node scripts/build.js && node scripts/serve.js",
-    "lint": "node scripts/check-syntax.js && node -e \"JSON.parse(require('fs').readFileSync('database.rules.json','utf8'))\"",
+    "lint": "eslint . && node -e \"JSON.parse(require('fs').readFileSync('database.rules.json','utf8'))\"",
     "test": "node --test"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.13.0",
+    "globals": "^17.13.0"
   }
 }

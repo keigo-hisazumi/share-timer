@@ -87,7 +87,7 @@ Node.js 20 以上が必要です。外部の npm パッケージには依存し�
 ```bash
 # リポジトリ直下に firebase-config.json（上記の JSON。.gitignore 済み）を置くか、環境変数 FIREBASE_CONFIG を指定する
 npm run dev   # dist/ をビルドして http://localhost:3000/ で配信
-npm run lint  # 構文チェック
+npm run lint  # ESLint と database.rules.json の構文チェック
 npm test      # テスト（node:test）
 npm run build # dist/ を生成
 ```

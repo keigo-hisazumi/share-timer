@@ -20,7 +20,7 @@ const localConfigFile = path.join(root, 'firebase-config.json');
 const TIMER_PATH_PATTERN = /^(timer|previews\/pr-[0-9]+\/timer)$/;
 
 function loadFirebaseConfig() {
-  let source = null;
+  let source;
   let text = process.env.FIREBASE_CONFIG?.trim();
   if (text) {
     source = '環境変数 FIREBASE_CONFIG';

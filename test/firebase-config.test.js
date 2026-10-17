@@ -65,7 +65,8 @@ const firebaseConfig = {
   });
 
   it('必須項目が欠けている場合はエラーにする', () => {
-    const { appId, ...rest } = expected;
+    const rest = { ...expected };
+    delete rest.appId;
     assert.throws(() => parseFirebaseConfig(JSON.stringify(rest), 'test'), /appId/);
   });
 });
