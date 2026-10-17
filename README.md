@@ -113,7 +113,6 @@ npm run build # dist/ を生成
 - `CLAUDE.md` — Claude Code 向け（`AGENTS.md` を参照）
 - `.cursor/rules/project.mdc` — Cursor 向け（`AGENTS.md` を参照）
 - `.github/copilot-instructions.md` — GitHub Copilot 向け（`AGENTS.md` を参照）
-- `.github/copilot-setup-steps.yml` — Copilot Coding Agent のビルド環境（日本語フォント）
 
 ### Issue / PR
 - `.github/ISSUE_TEMPLATE/` — バグ報告 / 機能要望 / 質問テンプレート
