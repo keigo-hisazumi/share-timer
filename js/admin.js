@@ -183,7 +183,7 @@ function start() {
 
     $('account-email').textContent = `${user.email} でログイン中`;
     // 管理者として登録されているか確認する（/admins/{uid} が true のユーザーのみ操作可能）
-    let isAdmin = false;
+    let isAdmin;
     try {
       isAdmin = (await get(ref(db, `admins/${user.uid}`))).val() === true;
     } catch {
