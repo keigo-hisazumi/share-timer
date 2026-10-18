@@ -7,7 +7,7 @@
 //
 // BUILD_ID はビルド時（scripts/build.js）に置き換わり、デプロイごとに Service Worker が更新される。
 
-const BUILD_ID = '936f5971746a-mvdcysl3';
+const BUILD_ID = '0c52489ac596-mvdg03bt';
 
 const scopeUrl = new URL(self.registration.scope);
 // 本番と PR プレビュー（pr-<番号>/）は同じオリジンでキャッシュを共有するため、スコープごとに名前を分ける
