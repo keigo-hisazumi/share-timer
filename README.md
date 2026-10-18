@@ -5,8 +5,8 @@ Web サイトにアクセスした全員が、**同期されたカウントダ�
 
 GitHub Pages で配信する静的サイトで、タイマーの同期と管理者認証には Firebase（Realtime Database / Authentication）を使います。
 
-- 本番: https://keigo-hisazumi.github.io/share-timer/
-- 管理画面: https://keigo-hisazumi.github.io/share-timer/admin/
+- 本番: <https://keigo-hisazumi.github.io/share-timer/>
+- 管理画面: <https://keigo-hisazumi.github.io/share-timer/admin/>
 - PR プレビュー: `https://keigo-hisazumi.github.io/share-timer/pr-<PR番号>/`（PR にコメントで URL が投稿されます）
 
 ## 画面構成
@@ -109,18 +109,21 @@ npm run build # dist/ を生成
 ## 含まれるもの
 
 ### AI 向け指示書
+
 - `AGENTS.md` — **正本**（汎用 AI エージェント向け）
 - `CLAUDE.md` — Claude Code 向け（`AGENTS.md` を参照）
 - `.cursor/rules/project.mdc` — Cursor 向け（`AGENTS.md` を参照）
 - `.github/copilot-instructions.md` — GitHub Copilot 向け（`AGENTS.md` を参照）
 
 ### Issue / PR
+
 - `.github/ISSUE_TEMPLATE/` — バグ報告 / 機能要望 / 質問テンプレート
 - `.github/PULL_REQUEST_TEMPLATE.md` — PR テンプレート（日本語）
 - `.github/CODEOWNERS` — レビュー自動アサイン
 - `CONTRIBUTING.md` / `SECURITY.md` — 貢献ガイドとセキュリティポリシー
 
 ### CI/CD
+
 - `.github/workflows/ci.yml` — push / PR 時の lint / typecheck / test / build（言語非依存の雛形）
 - `.github/workflows/actionlint.yml` — workflow 自体の Lint
 - `.github/workflows/codeql.yml` — セキュリティスキャン（言語確定後に有効化）
@@ -129,12 +132,14 @@ npm run build # dist/ を生成
 - `.github/dependabot.yml` — 依存関係の自動更新
 
 ### 環境差異の吸収
+
 - `.editorconfig` — エディタ間のインデント／改行統一
 - `.gitattributes` — テキスト/バイナリ・改行コードの正規化
 - `.gitignore` — OS / 言語 / ビルド成果物
 - `.vscode/extensions.json`, `.vscode/settings.json` — VSCode 推奨拡張・設定
 
 ### その他
+
 - `LICENSE` — MIT
 
 ## 使い方
