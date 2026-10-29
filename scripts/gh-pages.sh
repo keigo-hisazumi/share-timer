@@ -34,6 +34,13 @@ if [[ "$mode" == "remove" && "$dest" == "." ]]; then
   exit 1
 fi
 
+# actions/checkout は persist-credentials: false で認証情報を残さないため、
+# push に使うトークンは GITHUB_TOKEN で受け取り、このスクリプトの中だけで設定する
+if [[ -n "${GITHUB_TOKEN:-}" ]]; then
+  auth="$(printf 'x-access-token:%s' "$GITHUB_TOKEN" | base64 | tr -d '\n')"
+  git config --local http.https://github.com/.extraheader "AUTHORIZATION: basic $auth"
+fi
+
 branch="gh-pages"
 workdir="$(mktemp -d)"
 tmp_branch="$branch-tmp-$$"
