@@ -16,8 +16,7 @@ on:
     branches: [main]
 
 permissions:
-  contents: write
-  pull-requests: write
+  contents: read
 
 concurrency:
   group: pr-preview-${{ github.event.number }}
@@ -25,6 +24,9 @@ concurrency:
 
 jobs:
   deploy-preview:
+    permissions:
+      contents: write
+      pull-requests: write
     # Dependabot が起動したワークフローは GITHUB_TOKEN が読み取り専用になり、
     # gh-pages への push やコメント投稿ができないためスキップする
     if: >-
@@ -34,10 +36,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Node.js のセットアップ
-        uses: actions/setup-node@v7
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: '22'
           cache: 'npm'
@@ -53,9 +57,11 @@ jobs:
 
       - name: gh-pages への PR プレビューのデプロイ
         run: scripts/gh-pages.sh deploy dist "pr-${{ github.event.number }}"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: プレビュー URL のコメント投稿
-        uses: actions/github-script@v9
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         with:
           script: |
             const prNumber = context.issue.number;
@@ -103,11 +109,17 @@ jobs:
             }
 
   cleanup-preview:
+    permissions:
+      contents: write
     if: github.event.action == 'closed' && github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: gh-pages からプレビューディレクトリを削除
         run: scripts/gh-pages.sh remove "pr-${{ github.event.number }}"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

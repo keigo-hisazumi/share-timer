@@ -16,7 +16,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   group: pages
@@ -24,13 +24,17 @@ concurrency:
 
 jobs:
   deploy:
+    permissions:
+      contents: write
     if: github.event_name == 'workflow_dispatch' || github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
       - name: Node.js のセットアップ
-        uses: actions/setup-node@v7
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: '22'
           cache: 'npm'
@@ -43,3 +47,5 @@ jobs:
           TIMER_PATH: timer
       - name: gh-pages ブランチへのデプロイ
         run: scripts/gh-pages.sh deploy dist .
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
