@@ -10,6 +10,9 @@ export const MAX_DURATION_MS = (99 * 3600 + 59 * 60 + 59) * 1000;
 /** 初期状態の時間（5 分） */
 export const DEFAULT_DURATION_MS = 5 * 60 * 1000;
 
+/** タイトルの最大文字数 */
+export const MAX_TITLE_LENGTH = 50;
+
 /** 操作が不正な場合に投げるエラー */
 export class TimerError extends Error {
   constructor(message) {
@@ -25,6 +28,7 @@ export class TimerError extends Error {
  */
 export function createInitialState(durationMs = DEFAULT_DURATION_MS) {
   return {
+    title: '',
     status: 'idle',
     durationMs,
     remainingMs: durationMs,
@@ -75,10 +79,21 @@ export function validateDuration(durationMs) {
 }
 
 /**
+ * タイトルの入力値を整える（前後の空白を除く）。長すぎる場合はエラーにする
+ */
+export function normalizeTitle(title) {
+  const text = String(title ?? '').trim();
+  if (text.length > MAX_TITLE_LENGTH) {
+    throw new TimerError(`タイトルは ${MAX_TITLE_LENGTH} 文字以内で入力してください`);
+  }
+  return text;
+}
+
+/**
  * 操作を適用して新しい状態を返す（元の状態は変更しない）
  *
  * @param {object} current 現在の状態
- * @param {{type: string, durationMs?: number}} action 操作
+ * @param {{type: string, durationMs?: number, title?: string}} action 操作
  * @param {number} now サーバー時刻（エポックミリ秒）
  */
 export function applyAction(current, action, now) {
@@ -118,6 +133,10 @@ export function applyAction(current, action, now) {
         endsAt: null,
       });
     }
+    case 'title': {
+      // タイトルの変更ではタイマーの進行状態は変えない
+      return next({ title: normalizeTitle(action.title) });
+    }
     case 'reset': {
       return next({
         status: 'idle',
@@ -135,7 +154,8 @@ export function applyAction(current, action, now) {
  */
 export function isValidState(value) {
   if (!value || typeof value !== 'object') return false;
-  const { status, durationMs, remainingMs, endsAt, version } = value;
+  const { title, status, durationMs, remainingMs, endsAt, version } = value;
+  if (typeof title !== 'string' || title.length > MAX_TITLE_LENGTH) return false;
   if (!['idle', 'running', 'paused', 'finished'].includes(status)) return false;
   if (!Number.isInteger(durationMs) || durationMs < 1000 || durationMs > MAX_DURATION_MS) return false;
   if (!Number.isFinite(remainingMs) || remainingMs < 0) return false;
@@ -152,6 +172,6 @@ export function isValidState(value) {
  */
 export function parseState(value) {
   if (!value || typeof value !== 'object') return createInitialState();
-  const state = { ...value, endsAt: value.endsAt ?? null };
+  const state = { ...value, title: value.title ?? '', endsAt: value.endsAt ?? null };
   return isValidState(state) ? state : createInitialState();
 }

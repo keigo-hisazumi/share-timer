@@ -9,5 +9,5 @@ export default {
     "messagingSenderId": "213214572198",
     "appId": "1:213214572198:web:ed06785a077032bcda8e67"
   },
-  "timerPath": "timer"
+  "dataRoot": ""
 };

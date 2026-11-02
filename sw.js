@@ -7,7 +7,7 @@
 //
 // BUILD_ID はビルド時（scripts/build.js）に置き換わり、デプロイごとに Service Worker が更新される。
 
-const BUILD_ID = 'c4663c205eda-mvtp8ywi';
+const BUILD_ID = '20e8e71cd7d5-mvyra9mp';
 
 const scopeUrl = new URL(self.registration.scope);
 // 本番と PR プレビュー（pr-<番号>/）は同じオリジンでキャッシュを共有するため、スコープごとに名前を分ける
@@ -17,21 +17,29 @@ const CACHE_NAME = `${CACHE_PREFIX}${BUILD_ID}`;
 const APP_SHELL = [
   './',
   'index.html',
-  'admin/',
-  'admin/index.html',
+  'list/',
+  'list/index.html',
+  'manage/',
+  'manage/index.html',
+  'view/',
+  'view/index.html',
   'css/style.css',
-  'js/admin.js',
   'js/clock.js',
   'js/config.js',
   'js/firebase.js',
   'js/format.js',
+  'js/home.js',
+  'js/ids.js',
+  'js/list.js',
+  'js/manage.js',
   'js/pwa.js',
+  'js/store.js',
   'js/sync.js',
   'js/timer.js',
-  'js/viewer.js',
+  'js/ui.js',
+  'js/view.js',
   'favicon.svg',
   'manifest.webmanifest',
-  'admin/manifest.webmanifest',
   'icons/icon-192.png',
   'icons/icon-512.png',
   'icons/icon-maskable-512.png',
@@ -83,7 +91,7 @@ async function networkFirst(request) {
     const cached = await cache.match(request, { ignoreSearch: true });
     if (cached) return cached;
     if (request.mode === 'navigate') {
-      // 未キャッシュのページはタイマー画面で代用する
+      // 未キャッシュのページはトップページで代用する
       const fallback = await cache.match(new URL('./', scopeUrl).href);
       if (fallback) return fallback;
     }
