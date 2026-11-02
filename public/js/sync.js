@@ -1,7 +1,7 @@
 // Firebase Realtime Database との状態同期・時刻同期を行うモジュール
 
 import { pickBestOffset } from './clock.js';
-import { db, get, onValue, push, ref, remove, serverTimestamp, set, timerPath } from './firebase.js';
+import { dataPath, db, get, onValue, push, ref, remove, serverTimestamp, set } from './firebase.js';
 import { remainingAt } from './format.js';
 import { parseState } from './timer.js';
 
@@ -34,12 +34,13 @@ async function measureClock() {
 /**
  * タイマーの状態をデータベースと同期する
  *
+ * @param {string} viewId 表示 ID
  * @param {object} handlers
- * @param {(state: object) => void} [handlers.onState] 状態が更新されたとき
+ * @param {(state: object | null) => void} [handlers.onState] 状態が更新されたとき（タイマーが存在しなければ null）
  * @param {(connected: boolean) => void} [handlers.onConnection] 接続状態が変わったとき
  * @param {(error: Error) => void} [handlers.onError] 読み込みに失敗したとき
  */
-export function connectTimer({ onState = () => {}, onConnection = () => {}, onError = () => {} } = {}) {
+export function connectTimer(viewId, { onState = () => {}, onConnection = () => {}, onError = () => {} } = {}) {
   // 「サーバー時刻 - 端末時刻」の差。端末の時計がずれていても補正できる
   // Firebase の推定値（sdkOffset）は数秒ずれることがあるため、自前の計測値（measuredOffset）があればそちらを使う
   let sdkOffset = 0;
@@ -80,9 +81,9 @@ export function connectTimer({ onState = () => {}, onConnection = () => {}, onEr
   });
   setInterval(syncClock, CLOCK_RESYNC_INTERVAL_MS);
   onValue(
-    ref(db, timerPath),
+    ref(db, dataPath(`timers/${viewId}`)),
     (snapshot) => {
-      state = parseState(snapshot.val());
+      state = snapshot.exists() ? parseState(snapshot.val()) : null;
       onState(state);
     },
     onError,

@@ -1,7 +1,7 @@
 {
   "name": "share-timer",
   "version": "1.0.0",
-  "description": "アクセスした全員に同期されたカウントダウンタイマーを表示する Web アプリ（GitHub Pages + Firebase）",
+  "description": "ログイン不要で作成・共有できる、同期されたカウントダウンタイマーの Web アプリ（GitHub Pages + Firebase）",
   "private": true,
   "type": "module",
   "license": "MIT",

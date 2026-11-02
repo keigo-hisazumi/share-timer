@@ -14,6 +14,8 @@
   --viewer-bg: #000000;
   --viewer-text: #f8fafc;
   --viewer-finished: #ef4444;
+  --header-bg: #0f172a;
+  --header-text: #f8fafc;
   color-scheme: light dark;
 }
 
@@ -74,7 +76,7 @@ body {
   }
 }
 
-/* --- トップ画面（タイマーのみ） --- */
+/* --- タイマー表示画面 --- */
 
 body.viewer {
   background: var(--viewer-bg);
@@ -83,6 +85,7 @@ body.viewer {
 }
 
 .viewer-main {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -101,6 +104,21 @@ body.viewer {
   font-size: min(18vw, 45vh);
 }
 
+.viewer-title {
+  position: absolute;
+  top: max(16px, env(safe-area-inset-top));
+  left: 16px;
+  right: 16px;
+  margin: 0;
+  text-align: center;
+  font-size: clamp(18px, 4vw, 40px);
+  font-weight: 600;
+  color: #cbd5e1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .connection {
   position: fixed;
   right: 16px;
@@ -112,32 +130,71 @@ body.viewer {
   font-size: 14px;
 }
 
-/* --- 管理画面 --- */
+/* --- トップ・一覧・管理画面 --- */
 
-.admin-main {
+/* iOS の PWA ではステータスバーまでヘッダーと同じ色になるよう、画面上端に固定してヘッダー自身に背景色を付ける */
+.app-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: max(12px, env(safe-area-inset-top)) 16px 12px;
+  background: var(--header-bg);
+  color: var(--header-text);
+}
+
+.app-header h1 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.app-header-back {
+  color: var(--header-text);
+  opacity: 0.8;
+  text-decoration: none;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.page-main {
   max-width: 640px;
   margin: 0 auto;
   padding: 24px 16px 48px;
 }
 
-.admin-header {
+.home {
   display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 12px;
-  flex-wrap: wrap;
-  margin-bottom: 16px;
+  flex-direction: column;
+  gap: 24px;
+  padding-top: 48px;
 }
 
-.admin-header h1 {
+.lead {
   margin: 0;
-  font-size: 22px;
+  font-size: 16px;
+  line-height: 1.7;
 }
 
-.admin-header a {
-  color: var(--primary);
+.home-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.btn-large {
+  display: block;
+  padding: 20px;
+  font-size: 18px;
+  text-align: center;
   text-decoration: none;
-  font-size: 14px;
+}
+
+.btn-secondary {
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border);
 }
 
 .card {
@@ -155,6 +212,62 @@ body.viewer {
 
 .preview {
   text-align: center;
+}
+
+.title-preview {
+  margin: 0 0 8px;
+  font-size: 18px;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.share-id {
+  margin: 0 0 8px;
+  font-size: 32px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.timer-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.timer-list li + li {
+  border-top: 1px solid var(--border);
+}
+
+.timer-list-link {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px 4px;
+  color: inherit;
+  text-decoration: none;
+}
+
+.timer-list-link:hover .timer-list-title {
+  color: var(--primary);
+}
+
+.timer-list-title {
+  font-size: 16px;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.timer-list-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.timer-list-meta .badge {
+  padding: 2px 10px;
+  font-size: 12px;
 }
 
 .timer-preview {
@@ -223,7 +336,7 @@ body.viewer {
 }
 
 input[type="number"],
-input[type="password"] {
+input[type="text"] {
   font: inherit;
   padding: 10px 12px;
   border: 1px solid var(--border);
@@ -236,8 +349,10 @@ input[type="number"] {
   width: 5em;
 }
 
-input[type="password"] {
+.input-text,
+.input-id {
   flex: 1 1 200px;
+  min-width: 0;
 }
 
 .btn {
@@ -274,24 +389,12 @@ input[type="password"] {
 }
 
 .btn-small {
+  display: inline-block;
   padding: 6px 14px;
   font-size: 14px;
   color: var(--text);
   background: var(--border);
-}
-
-.btn-link {
-  font: inherit;
-  font-size: 14px;
-  color: var(--muted);
-  background: none;
-  border: none;
-  cursor: pointer;
-  text-decoration: underline;
-}
-
-.logout {
-  text-align: right;
+  text-decoration: none;
 }
 
 .message {
@@ -305,6 +408,10 @@ input[type="password"] {
   background: var(--danger);
   color: #fff;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+.message[data-ok="true"] {
+  background: var(--start);
 }
 
 [hidden] {
@@ -327,7 +434,7 @@ input[type="password"] {
   text-align: center;
 }
 
-.admin .notice {
+.page .notice {
   position: static;
   transform: none;
   width: auto;
@@ -337,24 +444,6 @@ input[type="password"] {
   border: 1px solid var(--border);
   color: var(--text);
   text-align: left;
-}
-
-input[type="email"] {
-  font: inherit;
-  flex: 1 1 200px;
-  padding: 10px 12px;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  background: var(--bg);
-  color: var(--text);
-}
-
-.account {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
 }
 
 code {
