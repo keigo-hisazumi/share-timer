@@ -10,7 +10,6 @@ import { NOT_CONFIGURED_MESSAGE, idFromLocation, showNotice } from './ui.js';
 const DISCONNECT_NOTICE_DELAY_MS = 3000;
 
 const timerEl = document.getElementById('timer');
-const titleEl = document.getElementById('title');
 const connectionEl = document.getElementById('connection');
 const noticeEl = document.getElementById('notice');
 
@@ -23,8 +22,7 @@ function start(viewId) {
         return;
       }
       noticeEl.hidden = true;
-      // タイトルは利用者の入力なので textContent で表示する
-      titleEl.textContent = displayTitle(state);
+      // タイトルは画面に表示せず、タブ名にだけ使う
       document.title = `${displayTitle(state)} - Share Timer`;
     },
     onConnection: (connected) => {
