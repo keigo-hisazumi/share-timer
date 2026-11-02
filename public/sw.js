@@ -17,21 +17,29 @@ const CACHE_NAME = `${CACHE_PREFIX}${BUILD_ID}`;
 const APP_SHELL = [
   './',
   'index.html',
-  'admin/',
-  'admin/index.html',
+  'list/',
+  'list/index.html',
+  'manage/',
+  'manage/index.html',
+  'view/',
+  'view/index.html',
   'css/style.css',
-  'js/admin.js',
   'js/clock.js',
   'js/config.js',
   'js/firebase.js',
   'js/format.js',
+  'js/home.js',
+  'js/ids.js',
+  'js/list.js',
+  'js/manage.js',
   'js/pwa.js',
+  'js/store.js',
   'js/sync.js',
   'js/timer.js',
-  'js/viewer.js',
+  'js/ui.js',
+  'js/view.js',
   'favicon.svg',
   'manifest.webmanifest',
-  'admin/manifest.webmanifest',
   'icons/icon-192.png',
   'icons/icon-512.png',
   'icons/icon-maskable-512.png',
@@ -83,7 +91,7 @@ async function networkFirst(request) {
     const cached = await cache.match(request, { ignoreSearch: true });
     if (cached) return cached;
     if (request.mode === 'navigate') {
-      // 未キャッシュのページはタイマー画面で代用する
+      // 未キャッシュのページはトップページで代用する
       const fallback = await cache.match(new URL('./', scopeUrl).href);
       if (fallback) return fallback;
     }

@@ -4,7 +4,7 @@
 # PR コメントにプレビュー URL と QR コードを自動投稿します。
 # PR クローズ時はプレビューディレクトリを自動削除します。
 #
-# プレビューは Firebase 上で本番とは別のパス（previews/pr-<番号>/timer）を使うため、
+# プレビューは Firebase 上で本番とは別のパス（previews/pr-<番号>）を使うため、
 # プレビューでタイマーを操作しても本番のタイマーには影響しません。
 # フォークからの PR は書き込み権限がないため対象外です。
 
@@ -53,7 +53,7 @@ jobs:
         run: npm run build
         env:
           FIREBASE_CONFIG: ${{ vars.FIREBASE_CONFIG }}
-          TIMER_PATH: previews/pr-${{ github.event.number }}/timer
+          DATA_ROOT: previews/pr-${{ github.event.number }}
 
       - name: gh-pages への PR プレビューのデプロイ
         run: scripts/gh-pages.sh deploy dist "pr-${{ github.event.number }}"
@@ -68,7 +68,7 @@ jobs:
             const owner = context.repo.owner;
             const repo = context.repo.repo;
             const previewUrl = `https://${owner}.github.io/${repo}/pr-${prNumber}/`;
-            const adminUrl = `${previewUrl}admin/`;
+            const listUrl = `${previewUrl}list/`;
             const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(previewUrl)}`;
             const marker = '<!-- pr-preview -->';
             const body = [
@@ -77,8 +77,8 @@ jobs:
               '',
               `| | |`,
               `|---|---|`,
-              `| **タイマー画面** | [${previewUrl}](${previewUrl}) |`,
-              `| **管理画面** | [${adminUrl}](${adminUrl}) |`,
+              `| **トップページ** | [${previewUrl}](${previewUrl}) |`,
+              `| **タイマー一覧** | [${listUrl}](${listUrl}) |`,
               `| **コミット** | \`${context.payload.pull_request.head.sha.slice(0, 7)}\` |`,
               `| **QRコード** | ![](${qrUrl}) |`,
               '',

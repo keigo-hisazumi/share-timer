@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { formatDuration, remainingAt, toDurationMs } from '../public/js/format.js';
+import { displayTitle, formatDuration, remainingAt, toDurationMs } from '../public/js/format.js';
 
 describe('formatDuration', () => {
   it('1 時間未満は MM:SS で表示する', () => {
@@ -34,5 +34,16 @@ describe('toDurationMs', () => {
   it('時・分・秒をミリ秒に変換する', () => {
     assert.equal(toDurationMs('1', '2', '3'), 3_723_000);
     assert.equal(toDurationMs('', '5', ''), 300_000);
+  });
+});
+
+describe('displayTitle', () => {
+  it('タイトルがあればタイトルを返す', () => {
+    assert.equal(displayTitle({ title: '休憩', durationMs: 300_000 }), '休憩');
+  });
+
+  it('タイトルが未記入なら設定時間を返す', () => {
+    assert.equal(displayTitle({ title: '', durationMs: 300_000 }), '05:00');
+    assert.equal(displayTitle({ durationMs: 3_600_000 }), '1:00:00');
   });
 });

@@ -48,6 +48,5 @@ const server = http.createServer(async (req, res) => {
 });
 
 server.listen(port, () => {
-  console.log(`タイマー画面: http://localhost:${port}/`);
-  console.log(`管理画面:     http://localhost:${port}/admin/`);
+  console.log(`トップページ: http://localhost:${port}/`);
 });

@@ -33,3 +33,10 @@ export function formatDuration(ms) {
 export function toDurationMs(hours, minutes, seconds) {
   return ((Number(hours) || 0) * 3600 + (Number(minutes) || 0) * 60 + (Number(seconds) || 0)) * 1000;
 }
+
+/**
+ * 一覧や画面に表示するタイマーの名前を返す（タイトルが未記入なら設定時間）
+ */
+export function displayTitle(state) {
+  return state.title || formatDuration(state.durationMs);
+}

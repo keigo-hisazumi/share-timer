@@ -7,20 +7,26 @@
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-  <meta name="theme-color" content="#000000">
+  <meta name="theme-color" content="#0f172a">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Share Timer">
   <link rel="stylesheet" href="css/style.css">
 </head>
-<body class="viewer">
-  <main class="viewer-main" title="クリックで全画面表示">
-    <div id="timer" class="timer" data-status="loading" aria-live="off">--:--</div>
+<body class="page">
+  <header class="app-header">
+    <h1>Share Timer</h1>
+  </header>
+  <main class="page-main home">
+    <p class="lead">同じ残り時間をみんなで見られるカウントダウンタイマーです。ログインは不要で、誰でも使えます。</p>
+    <div class="home-actions">
+      <button type="button" id="create" class="btn btn-primary btn-large">自分のタイマーを作成する</button>
+      <a href="list/" class="btn btn-secondary btn-large">ほかの人のタイマーを見に行く</a>
+    </div>
+    <p id="notice" class="notice" hidden></p>
   </main>
-  <p id="notice" class="notice" hidden></p>
-  <div id="connection" class="connection" hidden>再接続中…</div>
-  <script type="module" src="js/viewer.js"></script>
+  <p id="message" class="message" role="status" hidden></p>
+  <script type="module" src="js/home.js"></script>
   <script type="module" src="js/pwa.js"></script>
 </body>
 </html>

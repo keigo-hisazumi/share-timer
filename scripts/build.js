@@ -3,7 +3,7 @@
 // 環境変数:
 //   FIREBASE_CONFIG  Firebase のウェブアプリ設定（JSON。Firebase コンソールの JavaScript スニペット形式も可）。
 //                    未指定ならリポジトリ直下の firebase-config.json を読む
-//   TIMER_PATH       タイマーの状態を保存するデータベース上のパス（既定値: timer）
+//   DATA_ROOT        タイマーのデータを保存するデータベース上の起点（既定値: 空 = ルート。PR プレビューでは previews/pr-<番号>）
 
 import { cpSync, existsSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
@@ -16,8 +16,8 @@ const publicDir = path.join(root, 'public');
 const distDir = path.join(root, 'dist');
 const localConfigFile = path.join(root, 'firebase-config.json');
 
-/** 許可するデータベースパス（本番 or PR プレビュー） */
-const TIMER_PATH_PATTERN = /^(timer|previews\/pr-[0-9]+\/timer)$/;
+/** 許可するデータベース上の起点（本番 = 空 or PR プレビュー） */
+const DATA_ROOT_PATTERN = /^(|previews\/pr-[0-9]+)$/;
 
 function loadFirebaseConfig() {
   let source;
@@ -36,9 +36,9 @@ function loadFirebaseConfig() {
   return config;
 }
 
-const timerPath = process.env.TIMER_PATH || 'timer';
-if (!TIMER_PATH_PATTERN.test(timerPath)) {
-  throw new Error(`TIMER_PATH が不正です: ${timerPath}`);
+const dataRoot = process.env.DATA_ROOT ?? '';
+if (!DATA_ROOT_PATTERN.test(dataRoot)) {
+  throw new Error(`DATA_ROOT が不正です: ${dataRoot}`);
 }
 
 const firebase = loadFirebaseConfig();
@@ -50,7 +50,7 @@ rmSync(distDir, { recursive: true, force: true });
 cpSync(publicDir, distDir, { recursive: true });
 writeFileSync(
   path.join(distDir, 'js', 'config.js'),
-  `// scripts/build.js により自動生成\nexport default ${JSON.stringify({ firebase, timerPath }, null, 2)};\n`,
+  `// scripts/build.js により自動生成\nexport default ${JSON.stringify({ firebase, dataRoot }, null, 2)};\n`,
 );
 // Service Worker のキャッシュ名にビルド ID を埋め込み、デプロイごとに更新されるようにする
 const buildId = (process.env.GITHUB_SHA?.slice(0, 12) || 'local') + '-' + Date.now().toString(36);
@@ -59,4 +59,4 @@ writeFileSync(swFile, readFileSync(swFile, 'utf8').replace("const BUILD_ID = 'de
 // GitHub Pages で Jekyll の処理を無効化する
 writeFileSync(path.join(distDir, '.nojekyll'), '');
 
-console.log(`dist/ を生成しました（timerPath: ${timerPath}, buildId: ${buildId}）`);
+console.log(`dist/ を生成しました（dataRoot: ${dataRoot || '(ルート)'}, buildId: ${buildId}）`);

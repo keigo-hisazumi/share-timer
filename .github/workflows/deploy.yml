@@ -44,7 +44,6 @@ jobs:
         run: npm run build
         env:
           FIREBASE_CONFIG: ${{ vars.FIREBASE_CONFIG }}
-          TIMER_PATH: timer
       - name: gh-pages ブランチへのデプロイ
         run: scripts/gh-pages.sh deploy dist .
         env:

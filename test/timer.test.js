@@ -8,8 +8,31 @@ import {
   getRemainingMs,
   isValidState,
   normalize,
+  normalizeTitle,
   parseState,
 } from '../public/js/timer.js';
+
+describe('タイトル', () => {
+  it('title でタイトルを変更しても進行状態は変わらない', () => {
+    const running = applyAction(createInitialState(), { type: 'start' }, 0);
+    const state = applyAction(running, { type: 'title', title: '  休憩  ' }, 1000);
+    assert.equal(state.title, '休憩');
+    assert.equal(state.status, 'running');
+    assert.equal(state.endsAt, running.endsAt);
+    assert.equal(state.version, running.version + 1);
+  });
+
+  it('50 文字を超えるタイトルは拒否する', () => {
+    assert.equal(normalizeTitle('あ'.repeat(50)).length, 50);
+    assert.throws(() => normalizeTitle('あ'.repeat(51)), TimerError);
+  });
+
+  it('タイトルのない古いデータも読み込める', () => {
+    const value = createInitialState();
+    delete value.title;
+    assert.equal(parseState(value).title, '');
+  });
+});
 
 describe('applyAction', () => {
   it('set で時間を設定すると待機状態になる', () => {
@@ -96,7 +119,7 @@ describe('isValidState', () => {
 describe('parseState', () => {
   it('データベースの値を状態に変換する', () => {
     // Firebase は null を保存しないため endsAt が欠けた値になる
-    const stored = { status: 'paused', durationMs: 60_000, remainingMs: 30_000, version: 3 };
+    const stored = { title: '休憩', status: 'paused', durationMs: 60_000, remainingMs: 30_000, version: 3, createdAt: 1 };
     assert.deepEqual(parseState(stored), { ...stored, endsAt: null });
   });
 

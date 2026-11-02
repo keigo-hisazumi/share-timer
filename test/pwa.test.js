@@ -16,7 +16,7 @@ function readAppShell() {
 }
 
 describe('manifest.webmanifest', () => {
-  for (const file of ['manifest.webmanifest', 'admin/manifest.webmanifest']) {
+  for (const file of ['manifest.webmanifest']) {
     it(`${file} のアイコンがすべて存在し、192px・512px・maskable を含む`, () => {
       const manifest = JSON.parse(readFileSync(path.join(publicDir, file), 'utf8'));
       const baseDir = path.dirname(path.join(publicDir, file));
@@ -37,6 +37,13 @@ describe('Service Worker のキャッシュ対象', () => {
     for (const file of readAppShell()) {
       const target = file.endsWith('/') ? path.join(file, 'index.html') : file;
       assert.ok(existsSync(path.join(publicDir, target)), `${file} が見つかりません`);
+    }
+  });
+
+  it('すべての画面（HTML）を含む', () => {
+    const shell = readAppShell();
+    for (const page of ['index.html', 'list/index.html', 'manage/index.html', 'view/index.html']) {
+      assert.ok(shell.includes(page), `${page} が APP_SHELL にありません`);
     }
   });
 
