@@ -13,10 +13,14 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Share Timer">
   <link rel="stylesheet" href="../css/style.css">
+  <script>
+    // OBS のブラウザソースで開かれたときは背景を透過にする（OBS は window.obsstudio を用意する）。
+    // 黒い背景が一瞬表示されないよう、描画前に判定する
+    if (window.obsstudio) document.documentElement.classList.add('obs');
+  </script>
 </head>
 <body class="viewer">
   <main class="viewer-main" title="クリックで全画面表示">
-    <p id="title" class="viewer-title"></p>
     <div id="timer" class="timer" data-status="loading" aria-live="off">--:--</div>
   </main>
   <p id="notice" class="notice" hidden></p>

@@ -104,19 +104,14 @@ body.viewer {
   font-size: min(18vw, 45vh);
 }
 
-.viewer-title {
-  position: absolute;
-  top: max(16px, env(safe-area-inset-top));
-  left: 16px;
-  right: 16px;
-  margin: 0;
-  text-align: center;
-  font-size: clamp(18px, 4vw, 40px);
-  font-weight: 600;
-  color: #cbd5e1;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+/* OBS のブラウザソースでは背景を透過にし、配信画面に重ねても数字が読めるよう縁取りの影を付ける */
+html.obs,
+html.obs body.viewer {
+  background: transparent;
+}
+
+html.obs .viewer .timer {
+  text-shadow: 0 0 0.04em rgba(0, 0, 0, 0.9), 0 0.02em 0.08em rgba(0, 0, 0, 0.6);
 }
 
 .connection {
