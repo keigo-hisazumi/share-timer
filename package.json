@@ -12,10 +12,15 @@
     "build": "node scripts/build.js",
     "dev": "node scripts/build.js && node scripts/serve.js",
     "lint": "eslint . && node -e \"JSON.parse(require('fs').readFileSync('database.rules.json','utf8'))\"",
-    "test": "node --test"
+    "test": "node --test",
+    "icons": "pwa-assets-generator",
+    "prebuild": "npm run icons",
+    "predev": "npm run icons",
+    "pretest": "npm run icons"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@vite-pwa/assets-generator": "^2.0.0",
     "eslint": "^10.14.0",
     "globals": "^17.14.0"
   }

@@ -173,6 +173,58 @@ iOS でホーム画面に追加して開いたとき（PWA）に、ステータ�
 - 画面全体を `position: fixed` の要素で包む場合は、その要素の背景色もヘッダーと同じ色にし、本文側の背景色は内側の要素に指定する
 - `<meta name="theme-color">` とマニフェストの `theme_color` もヘッダーの背景色に合わせる（Android や iOS の古いバージョン向け）。ライト / ダークを切り替えるアプリでは、切り替え時に `theme-color` も更新する
 
+## アプリのアイコン
+
+アイコンや favicon の画像は、元になる SVG を 1 枚だけコミットし、PNG と `favicon.ico` はビルドのたびに自動で作ります。サイズやファイル名は全リポジトリで同じにします。
+
+- 元画像は `public/icon.svg` の 1 枚だけにする。背景まで塗った正方形（角丸可）で描く
+- PNG と `favicon.ico` は [`@vite-pwa/assets-generator`](https://vite-pwa-org.netlify.app/assets-generator/) で `public/` に生成し、コミットしない（`.gitignore` に登録済み）
+- `package.json` に次のスクリプトを置き、`npm run dev` / `npm run build` の前に自動で生成する（テストで画像の有無を確かめる場合は `pretest` も追加する）
+
+  ```json
+  "icons": "pwa-assets-generator",
+  "predev": "npm run icons",
+  "prebuild": "npm run icons"
+  ```
+
+- 設定はリポジトリ直下の `pwa-assets.config.js` に書き、全リポジトリで同じ内容にする。アプリごとに変えるのは `background`（アイコンの背景色）だけにする
+
+  ```js
+  import { defineConfig } from '@vite-pwa/assets-generator/config'
+
+  // iOS のホーム画面用アイコンと Android のマスカブルアイコンの余白を塗る色（アイコンの背景色）
+  const background = '#ffffff'
+
+  export default defineConfig({
+    preset: {
+      transparent: { sizes: [64, 192, 512], favicons: [[48, 'favicon.ico']], padding: 0 },
+      maskable: { sizes: [512], padding: 0.1, resizeOptions: { background } },
+      apple: { sizes: [180], padding: 0, resizeOptions: { background } },
+    },
+    images: ['public/icon.svg'],
+  })
+  ```
+
+- 生成されるファイルと使い道
+
+  | ファイル | 使い道 |
+  | --- | --- |
+  | `favicon.ico` | 古いブラウザ向けの favicon |
+  | `pwa-64x64.png` / `pwa-192x192.png` / `pwa-512x512.png` | マニフェストの `icons` |
+  | `maskable-icon-512x512.png` | マニフェストの `icons`（`"purpose": "maskable"`） |
+  | `apple-touch-icon-180x180.png` | iOS のホーム画面 |
+
+- HTML の `<head>` には次の 3 行を書く（パスの書き方はリポジトリの既存の書き方に合わせる）
+
+  ```html
+  <link rel="icon" href="/favicon.ico" sizes="48x48">
+  <link rel="icon" href="/icon.svg" sizes="any" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/apple-touch-icon-180x180.png">
+  ```
+
+- 他のアプリや別のリポジトリの画像を URL で参照しない。各アプリのリポジトリに置くことで、オフラインでも表示でき、PR プレビューも単独で動く
+- Vite の雛形が作る `vite.svg` や `src/assets/react.svg` / `vue.svg` など、使っていない画像は残さない
+
 ## セキュリティ
 
 ### GitHub Actions

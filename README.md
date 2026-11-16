@@ -53,7 +53,7 @@
   - 同一オリジンのファイルはネットワーク優先で取得するため、デプロイ後の更新はすぐ反映されます
   - キャッシュ名はビルドごとに変わり（`scripts/build.js` が `BUILD_ID` を埋め込む）、古いキャッシュは自動で削除されます
   - 本番と PR プレビュー（`pr-<番号>/`）はキャッシュを分けて管理します
-- アイコンは `public/icons/` にあります（`favicon.svg` と同じ意匠。`icon-maskable-512.png` は Android のアダプティブアイコン用）
+- アイコンの元画像は `public/icon.svg` です。PNG と `favicon.ico` は `npm run build` / `npm run dev` / `npm test` の前に `npm run icons` で `public/` に生成します（コミットしません）
 
 ## 同期の仕組み
 
@@ -128,7 +128,7 @@ public/                 配信するファイル一式（ビルド時に dist/ �
   view/                 タイマー表示画面
   js/                   画面のスクリプト（同期・時刻補正・タイマー計算・ID 発行など）
   css/                  スタイル
-  icons/                PWA のアイコン
+  icon.svg              アイコンの元画像（PNG と favicon.ico はここから生成）
   sw.js                 Service Worker
   manifest.webmanifest  PWA の manifest
 scripts/                ビルド・ローカル配信・gh-pages へのデプロイのスクリプト

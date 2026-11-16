@@ -58,3 +58,9 @@ test-results/
 
 # Firebase のローカル設定（scripts/build.js が読み込む）
 firebase-config.json
+
+# アプリのアイコン（public/icon.svg から npm run icons で生成する。AGENTS.md「アプリのアイコン」参照）
+public/favicon.ico
+public/pwa-*x*.png
+public/maskable-icon-*x*.png
+public/apple-touch-icon-*x*.png
