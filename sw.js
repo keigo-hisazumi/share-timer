@@ -7,7 +7,7 @@
 //
 // BUILD_ID はビルド時（scripts/build.js）に置き換わり、デプロイごとに Service Worker が更新される。
 
-const BUILD_ID = '5aabcc7fd4ab-mw8khtkh';
+const BUILD_ID = '4a9bb54bbee0-mwlticbw';
 
 const scopeUrl = new URL(self.registration.scope);
 // 本番と PR プレビュー（pr-<番号>/）は同じオリジンでキャッシュを共有するため、スコープごとに名前を分ける
@@ -38,12 +38,14 @@ const APP_SHELL = [
   'js/timer.js',
   'js/ui.js',
   'js/view.js',
-  'favicon.svg',
+  'favicon.ico',
+  'icon.svg',
   'manifest.webmanifest',
-  'icons/icon-192.png',
-  'icons/icon-512.png',
-  'icons/icon-maskable-512.png',
-  'icons/apple-touch-icon.png',
+  'pwa-64x64.png',
+  'pwa-192x192.png',
+  'pwa-512x512.png',
+  'maskable-icon-512x512.png',
+  'apple-touch-icon-180x180.png',
 ].map((file) => new URL(file, scopeUrl).href);
 
 const FIREBASE_SDK_ORIGIN = 'https://www.gstatic.com';
